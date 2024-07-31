@@ -4,6 +4,15 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Clase que gestiona el sistema de venta de boletos para eventos.
+ * Incluye funcionalidades para inicializar eventos, agregar compradores, realizar compras,
+ * consultar disponibilidad de boletos y generar reportes.
+ * También maneja la persistencia de datos en archivos CSV.
+ * 
+ * @author [Tu Nombre]
+ * @version 1.0
+ */
 public class SistemaVentaBoletos {
     private Evento evento;
     private List<Localidad> localidades;
@@ -12,6 +21,10 @@ public class SistemaVentaBoletos {
     private final int LIMITE_BOLETOS_POR_PERSONA = 5;
     private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
+    /**
+     * Constructor que inicializa el sistema de venta de boletos.
+     * Carga compradores, boletos y el historial de compras desde archivos CSV.
+     */
     public SistemaVentaBoletos() {
         this.localidades = new ArrayList<>();
         this.compradores = new ArrayList<>();
@@ -21,6 +34,16 @@ public class SistemaVentaBoletos {
         cargarHistorialCompras();
     }
 
+    /**
+     * Inicializa un nuevo evento con una fecha y capacidad específica,
+     * y define las localidades disponibles para el evento.
+     * 
+     * @param nombre El nombre del evento.
+     * @param fecha La fecha del evento.
+     * @param asientosBalcon2 Número de asientos en el Balcón 2.
+     * @param asientosPlatea Número de asientos en la Platea.
+     * @param asientosVIP Número de asientos en el Balcón 1 o VIP.
+     */
     public void inicializarEvento(String nombre, LocalDate fecha, int asientosBalcon2, int asientosPlatea, int asientosVIP) {
         int capacidadTotal = asientosBalcon2 + asientosPlatea + asientosVIP;
         this.evento = new Evento(nombre, capacidadTotal, fecha);
@@ -29,19 +52,43 @@ public class SistemaVentaBoletos {
         localidades.add(new Localidad("Balcón 1 o VIP", asientosVIP, 1800));
     }
 
+    /**
+     * Agrega un comprador al sistema y guarda la información en un archivo CSV.
+     * 
+     * @param comprador El comprador a agregar.
+     */
     public void agregarComprador(Comprador comprador) {
         this.compradores.add(comprador);
         guardarCompradores();
     }
 
+    /**
+     * Obtiene la lista de compradores.
+     * 
+     * @return La lista de compradores.
+     */
     public List<Comprador> getCompradores() {
         return compradores;
     }
 
+    /**
+     * Obtiene la lista de localidades.
+     * 
+     * @return La lista de localidades.
+     */
     public List<Localidad> getLocalidades() {
         return localidades;
     }
 
+    /**
+     * Realiza una compra de boletos para un comprador en una localidad específica.
+     * Verifica el presupuesto del comprador y la disponibilidad de boletos antes de realizar la compra.
+     * 
+     * @param comprador El comprador que realiza la compra.
+     * @param nombreLocalidad El nombre de la localidad donde se desea comprar boletos.
+     * @param cantidad La cantidad de boletos a comprar.
+     * @return true si la compra fue exitosa, false en caso contrario.
+     */
     public boolean comprarBoletos(Comprador comprador, String nombreLocalidad, int cantidad) {
         if (cantidad > LIMITE_BOLETOS_POR_PERSONA) {
             System.out.println("No se puede comprar más de " + LIMITE_BOLETOS_POR_PERSONA + " boletos por persona.");
@@ -76,6 +123,9 @@ public class SistemaVentaBoletos {
         return false;
     }
 
+    /**
+     * Consulta la disponibilidad total de boletos en todas las localidades.
+     */
     public void consultarDisponibilidadTotal() {
         int total = 0;
         for (Localidad localidad : localidades) {
@@ -84,6 +134,11 @@ public class SistemaVentaBoletos {
         System.out.println("Disponibilidad total de boletos: " + total);
     }
 
+    /**
+     * Consulta la disponibilidad de boletos en una localidad específica.
+     * 
+     * @param indiceLocalidad El índice de la localidad en la lista de localidades.
+     */
     public void consultarDisponibilidadPorLocalidad(int indiceLocalidad) {
         if (indiceLocalidad >= 0 && indiceLocalidad < localidades.size()) {
             Localidad localidad = localidades.get(indiceLocalidad);
@@ -93,6 +148,9 @@ public class SistemaVentaBoletos {
         }
     }
 
+    /**
+     * Genera un reporte de los ingresos totales por venta de boletos.
+     */
     public void generarReporteCaja() {
         double totalIngresos = 0;
         for (Localidad localidad : localidades) {
@@ -101,10 +159,18 @@ public class SistemaVentaBoletos {
         System.out.println("Total ingresos por venta de boletos: " + totalIngresos);
     }
 
+    /**
+     * Genera un número único para un boleto basado en la fecha del evento y un correlativo.
+     * 
+     * @return El número de boleto generado.
+     */
     private String generarNumeroBoleto() {
         return "B-" + evento.getFecha().format(dateFormatter).replaceAll("-", "") + "-" + (correlativo++);
     }
 
+    /**
+     * Guarda la información de los compradores en un archivo CSV.
+     */
     private void guardarCompradores() {
         try (PrintWriter writer = new PrintWriter(new File("compradores.csv"))) {
             StringBuilder sb = new StringBuilder();
@@ -120,6 +186,12 @@ public class SistemaVentaBoletos {
         }
     }
 
+    /**
+     * Guarda el historial de compras en un archivo CSV.
+     * 
+     * @param boletos La lista de boletos comprados.
+     * @param comprador El comprador que realizó la compra.
+     */
     private void guardarHistorialCompras(List<Boleto> boletos, Comprador comprador) {
         try (PrintWriter writer = new PrintWriter(new FileWriter("historial_compras.csv", true))) {
             StringBuilder sb = new StringBuilder();
@@ -136,6 +208,11 @@ public class SistemaVentaBoletos {
         }
     }
 
+    /**
+     * Guarda la información de los boletos en un archivo CSV.
+     * 
+     * @param boletos La lista de boletos a guardar.
+     */
     private void guardarBoletos(List<Boleto> boletos) {
         try (PrintWriter writer = new PrintWriter(new FileWriter("boletos.csv", true))) {
             StringBuilder sb = new StringBuilder();
@@ -151,6 +228,10 @@ public class SistemaVentaBoletos {
         }
     }
 
+    /**
+     * Carga la información de los compradores desde un archivo CSV.
+     * Si el archivo no existe, se crea uno nuevo.
+     */
     public void cargarCompradores() {
         File file = new File("compradores.csv");
         if (!file.exists()) {
@@ -175,6 +256,10 @@ public class SistemaVentaBoletos {
         }
     }
 
+    /**
+     * Carga la información de los boletos desde un archivo CSV.
+     * Si el archivo no existe, se crea uno nuevo.
+     */
     public void cargarBoletos() {
         File file = new File("boletos.csv");
         if (!file.exists()) {
@@ -209,6 +294,10 @@ public class SistemaVentaBoletos {
         }
     }
 
+    /**
+     * Carga el historial de compras desde un archivo CSV.
+     * Si el archivo no existe, se crea uno nuevo.
+     */
     private void cargarHistorialCompras() {
         File file = new File("historial_compras.csv");
         if (!file.exists()) {
@@ -225,7 +314,7 @@ public class SistemaVentaBoletos {
             br.readLine(); // Saltar la primera línea (encabezado)
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(",");
-                // Process historial de compras if necessary
+                // Procesar historial de compras si es necesario
             }
         } catch (IOException e) {
             System.out.println("Error al cargar el historial de compras: " + e.getMessage());
