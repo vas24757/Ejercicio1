@@ -1,3 +1,9 @@
+/*
+    Pablo José Vásquez Santos
+    Programación Orientada a Objetos
+    24757
+ */
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
